@@ -138,6 +138,14 @@ body.shake #stage{animation:shake .5s ease}
 /* toast 提示 */
 #toast{position:fixed;bottom:44px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,.78);color:#fff;font-size:13px;padding:10px 22px;border-radius:22px;opacity:0;transition:.3s;z-index:999;pointer-events:none;letter-spacing:1px}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 伪装"后端系统反馈"条:绿色系统口吻,答完自动淡出 */
+@keyframes sysTipIn{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}12%{opacity:1;transform:translateX(-50%) translateY(0)}82%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-4px)}}
+.sys-tip{position:absolute;top:52px;left:50%;background:#e9f6ee;border:1px solid #a8d4bb;color:#1f7a4d;font-size:12.5px;letter-spacing:1px;padding:8px 16px;border-radius:6px;z-index:60;box-shadow:0 2px 10px rgba(31,122,77,.14);pointer-events:none;white-space:nowrap;animation:sysTipIn 2.4s ease forwards}
+
+/* 满屏"处理中"飘字(登记提交后) */
+@keyframes floatUp{0%{opacity:0;transform:translateY(8px)}16%{opacity:.92;transform:translateY(0)}100%{opacity:0;transform:translateY(-22px)}}
+.float-w{position:absolute;font-size:12.5px;letter-spacing:1px;color:#2f6b4d;background:rgba(233,246,238,.92);border:1px solid #b3d9c4;border-radius:14px;padding:4px 12px;z-index:55;pointer-events:none;white-space:nowrap;animation:floatUp 1.7s ease forwards}
 </style>
 </head>
 <body>
@@ -327,6 +335,41 @@ function toast(m) {
   clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('on'); }, 2200);
 }
 
+/* ---- 伪装"后端系统反馈"(借鉴 Ghost 问卷的答题中干扰) ----
+   只在用户"选择配合"时出现;警觉选项全程静默 —— 反差即设计 */
+const SYS_REACT = {
+  5: { 0: '✓ 身份信息已记录,感谢配合', 1: 'ℹ 核验未完成,稍后将再次致电' },
+  6: { 0: '✓ 新号码已写入通讯录', 1: 'ℹ 已收到您的回复' },
+  8: { 0: '✓ 家长联系方式已登记', 1: 'ℹ 客服将致电说明用途' },
+  10: { 0: '✓ 验证码校验通过,入账处理中…' }
+};
+function sysTip(m) {
+  const old = document.querySelector('.sys-tip'); if (old) old.remove();
+  const d = document.createElement('div'); d.className = 'sys-tip'; d.textContent = m;
+  $('#stage').appendChild(d);
+  setTimeout(function () { d.remove(); }, 2500);
+}
+function sysReact(qi, oi) {
+  const m = SYS_REACT[qi] && SYS_REACT[qi][oi];
+  if (m) sysTip(m);
+}
+/* 满屏"处理中"系统飘字(登记提交后短暂刷屏) */
+function floatWords(dur) {
+  const tail = (info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××';
+  const pool = ['已建档 ✓', '风控已通过 ^^', '资料完整度 100%', '尾号 ' + tail + ' 已核验', '红包队列:第 1 位', '3 个工作日内到账', '已同步至合作平台'];
+  let n = 0;
+  const t = setInterval(function () {
+    const d = document.createElement('div'); d.className = 'float-w';
+    d.textContent = pool[n % pool.length];
+    d.style.left = (8 + Math.random() * 74) + '%';
+    d.style.top = (16 + Math.random() * 60) + '%';
+    $('#stage').appendChild(d);
+    setTimeout(function () { d.remove(); }, 1700);
+    n++;
+  }, 240);
+  setTimeout(function () { clearInterval(t); }, dur);
+}
+
 /* ---- 答题 ---- */
 function renderQ(qi) {
   const q = QS[qi]; qNo++;
@@ -345,7 +388,10 @@ function renderQ(qi) {
       if (qBody.dataset.done) return; qBody.dataset.done = '1';
       q.input.forEach(function (f) { info[f.k] = $('#in_' + f.k).value.trim(); });
       if (q.leakFn) leaks.push(q.leakFn());
-      setTimeout(next, 500);
+      /* 登记提交后:系统确认 + 满屏飘字,拉长戏剧时间再进下一题 */
+      sysTip('✓ 登记成功,正在为您处理红包');
+      floatWords(2400);
+      setTimeout(next, 2800);
     };
     qBody.appendChild(b);
   } else {
@@ -358,6 +404,7 @@ function renderQ(qi) {
         d.classList.add('picked');
         if (q.good && q.good.indexOf(i) > -1) score++;
         if (q.leak) leaks.push(q.leak);
+        sysReact(qi, i);
         setTimeout(next, 550);
       };
       qBody.appendChild(d);
@@ -429,7 +476,7 @@ function renderResult() {
   if (!r) r = [0, '反诈萌新'];
   $('#rsRank').textContent = r[1];
   $('#rsScore').innerHTML = '警觉值 ' + score + ' / ' + scoreTotal
-    + '<span>别急着走 —— 下一页还有个"小奖励"。<br>记住刚学的:天上不会掉红包。</span>';
+    + '<span>刚才那些绿色"系统提示"、满屏的"已建档" —— 全是这页代码本地演的。<br>界面上的"官方确认"本身就能伪造,别被它带节奏。<br>别急着走 —— 下一页还有个"小奖励":天上不会掉红包。</span>';
 }
 
 /* ---- 谢谢参与(问卷星风) ---- */
