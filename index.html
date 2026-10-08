@@ -124,7 +124,7 @@ body.shake #stage{animation:shake .5s ease}
     <div class="cover-title">大学生活习惯<br>小 调 查</div>
     <div class="cover-sub">本问卷共 11 题,约需 2 分钟<br>数据仅用于校园生活研究,匿名处理</div>
     <button class="btn btn-main" id="startBtn">我已知晓,开始作答</button>
-    <div class="cover-note">主办方:学生生活研究会<br>完成问卷可参与 10 元红包抽奖</div>
+    <div class="cover-note">主办方:学生生活研究会<br>完成问卷即可领取 10 元现金红包</div>
   </div>
 
   <!-- 答题 -->
@@ -144,7 +144,7 @@ body.shake #stage{animation:shake .5s ease}
     <div class="rv-kicker">— 调 查 结 束 —</div>
     <div class="rv-title">现在,把你刚才亲手交出的<br>东西,再看一遍</div>
     <div class="rv-list" id="rvList"></div>
-    <div class="rv-foot" id="rvFoot">这不是问卷。这是一场真实骗局的标准开场。<br>天上不会掉红包 —— 掉下来的,都是鱼饵。</div>
+    <div class="rv-foot" id="rvFoot">这不是问卷。这是一场真实骗局的标准开场。<br>所谓"绝不泄露信息" —— 骗子的口头保证,从来不算数。<br>天上不会掉红包,掉下来的都是鱼饵。</div>
     <button class="btn rv-next" id="rvNext">→ 进入反诈第一课</button>
   </div>
 
@@ -156,10 +156,10 @@ body.shake #stage{animation:shake .5s ease}
     <div class="th-hb">
       <div class="t1">恭喜获得</div>
       <div class="amt">¥10</div>
-      <div class="lbl">现金红包 · 即刻到账</div>
+      <div class="lbl">现金红包 · 3 个工作日内到账</div>
       <button class="btn th-btn" id="thBtn">拆 红 包</button>
     </div>
-    <div class="th-tip">—— 红包已发放至钱包,24 小时内有效 ——</div>
+    <div class="th-tip">—— 红包将于 3 个工作日内发放至登记账户 ——</div>
   </div>
 
   <!-- 毕业小测:点红包后 -->
@@ -176,7 +176,7 @@ body.shake #stage{animation:shake .5s ease}
     <div class="rs-badge">反诈第一课 · 结课报告</div>
     <div class="rs-rank" id="rsRank"></div>
     <div class="rs-score" id="rsScore"></div>
-    <div class="rs-block"><h3>今天演示的 3 类真实骗局</h3><p>① <span class="hot">冒充快递 / 平台客服</span>:「包裹破损理赔」「会员误开通」,高校受骗榜第一名<br>② <span class="hot">冒充熟人</span>:「我是你班主任,换号了」→ 下一步就是借钱、垫付<br>③ <span class="hot">索要验证码</span>:验证码就是钱,念出去 = 账户失守</p></div>
+    <div class="rs-block"><h3>今天演示的 3 类真实骗局</h3><p>① <span class="hot">冒充快递 / 平台客服</span>:「包裹破损理赔」「会员误开通」,高校受骗榜第一名<br>② <span class="hot">冒充熟人</span>:「我是你班主任,换号了」→ 下一步就是借钱、垫付<br>③ <span class="hot">索要验证码</span>:正规问卷 / 红包绝不需要验证码 —— 验证码就是钱,念出去 = 账户失守</p></div>
     <div class="rs-block"><h3>防骗三不原则</h3><p>不点陌生链接 · 不给任何人验证码 · 不向陌生账户转账<br>拿不准?先挂断,打 <span class="hot">96110</span> 反诈专线核实</p></div>
     <div class="rs-tip">打开「国家反诈中心」App,可疑来电自动预警<br>把这份问卷发给室友 —— 别让 ta 成为下一个</div>
     <button class="btn btn-main" id="toThanksBtn">提交问卷,领取奖励</button>
@@ -185,7 +185,7 @@ body.shake #stage{animation:shake .5s ease}
 <div id="toast"></div>
 <script>
 /* ==================== 数据:题目 / 笔记 / 流程 ==================== */
-const info = { name: '', birth: '' };
+const info = { name: '', birth: '', phone: '' };
 const answers = [];
 
 /* 题目:good 数组 = 警觉得分项;leak = 反转页要展示的"你交出的信息" */
@@ -200,14 +200,18 @@ const QS = [
     leak: { b: '常用支付', s: '"官方客服"会自称哪家,你就会信哪家' } },
   { tag: '情景题', q: '「客服」来电:您的学生账户异常,需报身份证号核验。你会?', opts: ['报给对方核验', '犹豫一下,再问问', '直接挂断'],
     good: [2], leak: { b: '身份证号', s: '犹豫的人,换个由头还是会给' } },
-  { tag: '抽奖登记', q: '填写以下信息,完成 10 元红包抽奖登记', input: [{ k: 'name', label: '姓名' }, { k: 'birth', label: '生日(例:5 月 12 日)' }], btn: '提交登记',
-    leakFn: function () { return { b: '姓名 · 生日', s: '「' + (info.name || '空') + '」「' + (info.birth || '空') + '」—— 冒充你的材料' } } },
+  { tag: '红包登记', q: '请留下以下信息,红包将于 3 个工作日内发放至您的账户<br><span style="font-size:12px;font-weight:400;color:#a09a89;letter-spacing:1px">✓ 我们承诺:您的信息仅用于红包发放,绝不外泄</span>',
+    input: [{ k: 'name', label: '姓名' }, { k: 'birth', label: '生日(例:5 月 12 日)' }, { k: 'phone', label: '手机号(用于红包发放)' }], btn: '提交登记',
+    leakFn: function () { return { b: '姓名 · 生日 · 手机尾号', s: '「' + (info.name || '空') + '」「' + (info.birth || '空') + '」尾号 ' + ((info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××') + ' —— 冒充你的全套材料' } } },
   { tag: '情景题', q: '「班主任」用新号码发来短信:「存一下我的新号」,你会?', opts: ['马上保存', '回一句"好的老师"', '打电话向老师本人核实', '不理会'],
     good: [2, 3], leak: { b: '对"老师"的态度', s: '下一步就是"帮我垫付一笔钱"' } },
   { tag: '家庭情况', q: '家里平时主要是谁管钱?', opts: ['我爸', '我妈', '我自己管', '各管各的'] },
   { tag: '信息登记', q: '申请奖学金需核对家长联系方式,方便留下爸妈的电话吗?', opts: ['留下了', '凭什么给你?', '填了个空号'],
     good: [1, 2], leak: { b: '父母电话', s: '用你的名字,向你爸妈要钱' } },
-  { tag: '最后一步', q: '把刚收到的 6 位短信验证码发我,帮你完成登记', opts: ['好,这就发给你', '验证码谁都不能给', '你到底是谁?'],
+  { tag: '到账校验', q: function () {
+      const tail = (info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××';
+      return '为确保红包 3 个工作日内顺利到账,需先完成手机校验。<br>验证码已发送至您登记的手机(尾号 <b>' + tail + '</b>),请输入完成校验';
+    }, opts: ['按提示输入验证码,完成领取', '不对劲,拒绝提供', '打 96110 核实'],
     good: [1, 2], leak: { b: '短信验证码', s: '交出它,等于交出账户' } }
 ];
 
@@ -285,7 +289,7 @@ function renderQ(qi) {
   const q = QS[qi]; qNo++;
   show('quizScene'); prog.classList.add('on');
   prog.textContent = '第 ' + qNo + ' 题 / 共 ' + QS.length + ' 题';
-  bodyBg(qi); qTag.textContent = q.tag; qText.innerHTML = q.q; qBody.innerHTML = ''; qBody.removeAttribute('data-done');
+  bodyBg(qi); qTag.textContent = q.tag; qText.innerHTML = typeof q.q === 'function' ? q.q() : q.q; qBody.innerHTML = ''; qBody.removeAttribute('data-done');
   if (q.input) {
     q.input.forEach(function (f) {
       const w = document.createElement('div'); w.className = 'field';
