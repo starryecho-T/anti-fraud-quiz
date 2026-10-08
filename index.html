@@ -145,7 +145,7 @@ body.shake #stage{animation:shake .5s ease}
     <div class="rv-title">现在,把你刚才亲手交出的<br>东西,再看一遍</div>
     <div class="rv-list" id="rvList"></div>
     <div class="rv-foot" id="rvFoot">这不是问卷。这是一场真实骗局的标准开场。<br>所谓"绝不泄露信息" —— 骗子的口头保证,从来不算数。<br>天上不会掉红包,掉下来的都是鱼饵。</div>
-    <button class="btn rv-next" id="rvNext">→ 进入反诈第一课</button>
+    <button class="btn rv-next" id="rvNext">→ 这几天,ta 记了些什么</button>
   </div>
 
   <!-- 谢谢参与(问卷星风)+ 红包弹窗 -->
@@ -215,7 +215,7 @@ const QS = [
     good: [1, 2], leak: { b: '短信验证码', s: '交出它,等于交出账户' } }
 ];
 
-/* 骗子笔记:lines 里以 ! 开头的行显示为红色;第 3 篇自动引用用户填的姓名生日 */
+/* 骗子笔记(反转页后连播):lines 里以 ! 开头的行显示为红色;第 3 篇自动引用用户填的姓名生日 */
 const NOTES = [
   { date: '04.24 · 晴', lines: function () {
       const grade = answers[0] || '大一';
@@ -245,12 +245,10 @@ const NOTES = [
   { date: '04.27 · 雨 · 开工前夜', lines: ['就差一个验证码了。', '给了,"账户异常"就能变成"账户清空"。', '明晚开工。', '!—— 都记 xia 了,跑不掉的。'] }
 ];
 
-/* 流程:q=题目 n=笔记 rv=反转 */
+/* 流程:q=题目 rv=反转(骗子笔记后置到反转页之后连播) */
 const TIMELINE = [
-  { t: 'q', i: 0 }, { t: 'q', i: 1 }, { t: 'n', i: 0 },
-  { t: 'q', i: 2 }, { t: 'q', i: 3 }, { t: 'q', i: 4 }, { t: 'n', i: 1 },
-  { t: 'q', i: 5 }, { t: 'q', i: 6 }, { t: 'n', i: 2 },
-  { t: 'q', i: 7 }, { t: 'q', i: 8 }, { t: 'q', i: 9 }, { t: 'n', i: 3 },
+  { t: 'q', i: 0 }, { t: 'q', i: 1 }, { t: 'q', i: 2 }, { t: 'q', i: 3 }, { t: 'q', i: 4 },
+  { t: 'q', i: 5 }, { t: 'q', i: 6 }, { t: 'q', i: 7 }, { t: 'q', i: 8 }, { t: 'q', i: 9 },
   { t: 'q', i: 10 }, { t: 'rv' }
 ];
 
@@ -276,7 +274,6 @@ function next() {
   const st = TIMELINE[ti];
   if (!st) return;
   if (st.t === 'q') renderQ(st.i);
-  else if (st.t === 'n') renderNote(st.i);
   else renderReveal();
 }
 function toast(m) {
@@ -322,9 +319,11 @@ function renderQ(qi) {
   }
 }
 
-/* ---- 骗子笔记 ---- */
+/* ---- 骗子笔记(反转页之后连播 4 篇) ---- */
 function renderNote(ni) {
   const n = NOTES[ni]; show('noteScene');
+  prog.classList.add('on');
+  prog.textContent = '工 作 手 记 · ' + (ni + 1) + ' / ' + NOTES.length;
   const L = typeof n.lines === 'function' ? n.lines() : n.lines;
   const sc = $('#noteScene'); sc.innerHTML = '';
   const paper = document.createElement('div'); paper.className = 'note-paper';
@@ -337,14 +336,17 @@ function renderNote(ni) {
     d.style.animationDelay = (0.3 + i * 0.9) + 's';
     paper.appendChild(d);
   });
-  const nx = document.createElement('div'); nx.className = 'note-next'; nx.textContent = '→ 继续作答';
-  nx.style.animationDelay = (0.6 + L.length * 0.9) + 's'; nx.onclick = next;
+  const last = ni >= NOTES.length - 1;
+  const nx = document.createElement('div'); nx.className = 'note-next';
+  nx.textContent = last ? '→ 进入反诈第一课' : '→ 翻下一页';
+  nx.style.animationDelay = (0.6 + L.length * 0.9) + 's';
+  nx.onclick = last ? renderResult : function () { renderNote(ni + 1); };
   paper.appendChild(nx);
   sc.appendChild(paper);
-  if (ni >= 2) {
+  heartbeat();
+  if (last) {
     document.body.classList.add('shake');
     setTimeout(function () { document.body.classList.remove('shake'); }, 600);
-    heartbeat();
   }
 }
 
@@ -369,12 +371,12 @@ function renderReveal() {
   });
   replay($('#rvFoot'), 1.1 + leaks.length * 0.55);
   replay($('#rvNext'), 2 + leaks.length * 0.55);
-  $('#rvNext').onclick = renderResult;
+  $('#rvNext').onclick = function () { renderNote(0); };
 }
 
 /* ---- 结算 ---- */
 function renderResult() {
-  show('resultScene');
+  show('resultScene'); prog.textContent = '结 课 报 告';
   const ranks = [[5, '反诈王者'], [4, '反诈黄金'], [3, '反诈白银'], [1, '反诈青铜'], [0, '反诈萌新']];
   let r = null;
   for (var k = 0; k < ranks.length; k++) { if (score >= ranks[k][0]) { r = ranks[k]; break; } }
