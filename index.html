@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>大学生活习惯小调查</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%}
+body{
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Heiti SC",sans-serif;
+  background:#f6f2e8;color:#2b2a26;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 1.5s ease;overflow:hidden;
+}
+#stage{width:100%;max-width:480px;height:100%;position:relative;overflow:hidden}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:60px 26px 40px;opacity:0;pointer-events:none;transition:opacity .8s ease;overflow-y:auto}
+.scene.on{opacity:1;pointer-events:auto}
+.scene>*:first-child{margin-top:auto}
+.scene>*:last-child{margin-bottom:auto}
+
+/* 顶部进度 & 声音开关 */
+#prog{position:absolute;top:20px;left:0;right:0;text-align:center;font-size:12px;color:#9a9484;letter-spacing:2px;opacity:0;transition:opacity .5s;z-index:10}
+#prog.on{opacity:1}
+#mute{position:absolute;top:14px;right:14px;z-index:99;font-size:11px;color:#9a9484;border:1px solid #d8d2c2;border-radius:20px;padding:4px 10px;background:transparent;cursor:pointer;display:none}
+#mute.on{display:block}
+
+/* ============ 开场(伪装问卷封面) ============ */
+.cover-badge{font-size:13px;color:#b0642a;border:1px solid #d9b18c;border-radius:4px;padding:3px 10px;letter-spacing:3px;margin-bottom:22px;background:#fbf6ec}
+.cover-title{font-size:26px;font-weight:700;letter-spacing:4px;margin-bottom:14px;text-align:center;line-height:1.5}
+.cover-sub{font-size:13px;color:#8a8474;line-height:2;text-align:center;margin-bottom:34px}
+.cover-note{font-size:11px;color:#b3ac9a;text-align:center;line-height:1.9;margin-top:26px}
+
+/* 通用按钮 */
+.btn{display:block;width:100%;max-width:300px;margin:0 auto;padding:13px 0;text-align:center;border:none;border-radius:8px;font-size:16px;letter-spacing:3px;cursor:pointer;transition:transform .15s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn-main{background:#2f5e3f;color:#fff}
+.btn-share{background:#2f5e3f;color:#fff}
+.btn-re{background:transparent;color:#8f9a8f;border:1px solid #2c3a2e;margin-top:12px}
+
+/* ============ 答题卡 ============ */
+.q-card{width:100%}
+.q-tag{font-size:12px;color:#a09a89;letter-spacing:2px;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.q-tag::before{content:"";width:14px;height:2px;background:#c0392b;display:inline-block}
+.q-text{font-size:20px;font-weight:600;line-height:1.65;margin-bottom:32px;min-height:66px}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{border:1px solid #ddd6c4;background:#fffdf7;border-radius:10px;padding:13px 16px;font-size:15px;color:#4a463c;cursor:pointer;transition:all .2s;letter-spacing:1px}
+.opt:hover{border-color:#b8ae95}
+.opt.picked{background:#2f5e3f;color:#fff;border-color:#2f5e3f}
+.opt .idx{display:inline-block;width:20px;color:#b9b19c;font-size:13px;margin-right:6px}
+.opt.picked .idx{color:#cfe3d4}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;color:#8a8474;margin-bottom:8px;letter-spacing:1px}
+.field input{width:100%;border:none;border-bottom:2px solid #ddd6c4;background:transparent;font-size:17px;padding:8px 2px;color:#2b2a26;outline:none;font-family:inherit}
+.field input:focus{border-color:#2f5e3f}
+/* ============ 骗子笔记(日记页) ============ */
+#noteScene{background:#0d0c0a;align-items:center}
+.note-paper{width:100%;max-width:380px;font-family:"Kaiti SC","STKaiti","KaiTi","DFKai-SB",cursive,serif;color:#cfc7b4;padding:30px 24px}
+.note-date{font-size:15px;color:#8f8878;letter-spacing:3px;margin-bottom:20px;border-bottom:1px dashed #3c3830;padding-bottom:10px}
+.note-line{font-size:18px;line-height:2.1;letter-spacing:2px;opacity:0;animation:lineIn 1s ease forwards}
+.note-line.red{color:#c0392b}
+.note-next{margin-top:34px;color:#6b6558;font-size:14px;letter-spacing:4px;cursor:pointer;opacity:0;animation:lineIn .8s ease forwards;align-self:center}
+@keyframes lineIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+body.shake #stage{animation:shake .5s ease}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,2px)}}
+
+/* ============ 反转页 ============ */
+#revealScene{background:#0b0a09;color:#e8e2d2;align-items:center}
+.rv-kicker{font-size:13px;letter-spacing:6px;color:#c0392b;margin-bottom:24px;opacity:0;animation:lineIn .8s ease forwards}
+.rv-title{font-size:22px;font-weight:700;letter-spacing:2px;margin-bottom:26px;line-height:1.7;text-align:center;opacity:0;animation:lineIn 1s ease forwards}
+.rv-list{width:100%;max-width:400px}
+.rv-item{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 4px;border-bottom:1px dashed #2e2b25;font-size:14px;opacity:0;animation:lineIn .7s ease forwards}
+.rv-item b{color:#e8e2d2;font-weight:600;white-space:nowrap;font-size:13.5px}
+.rv-item b.hot{color:#e05a45}
+.rv-item span{color:#97907e;text-align:right;flex:1;font-size:12.5px;line-height:1.5}
+.rv-foot{margin-top:24px;font-size:13px;color:#b5453a;line-height:2;letter-spacing:1px;opacity:0;animation:lineIn 1s ease forwards;text-align:center}
+.rv-next{margin-top:30px;background:#c0392b;color:#fff;opacity:0;animation:lineIn 1s ease forwards}
+
+/* ============ 谢谢参与(问卷星风) ============ */
+#thanksScene{background:#f4f7f4}
+.th-check{width:74px;height:74px;border-radius:50%;background:#2f5e3f;color:#fff;font-size:34px;line-height:74px;text-align:center;margin-bottom:22px}
+.th-title{font-size:24px;font-weight:700;letter-spacing:3px;color:#2b3a2e;margin-bottom:10px}
+.th-sub{font-size:13px;color:#8a958a;letter-spacing:1px;margin-bottom:34px}
+.th-hb{background:#d43a2f;border-radius:16px;width:250px;padding:26px 20px 20px;text-align:center;box-shadow:0 14px 34px rgba(200,40,40,.3);transform:scale(0);opacity:0;animation:popIn .55s cubic-bezier(.2,1.4,.4,1) forwards}
+.th-hb .t1{font-size:15px;color:#ffd98a;letter-spacing:2px}
+.th-hb .amt{font-size:44px;font-weight:700;color:#ffd98a;margin:4px 0 2px}
+.th-hb .lbl{font-size:12px;color:#f3c9c0;letter-spacing:2px;margin-bottom:16px}
+.th-btn{background:#ffe9c8;color:#c0392b;font-weight:700;border-radius:22px;opacity:0;animation:lineIn .6s forwards}
+.th-tip{font-size:11px;color:#b3ac9a;letter-spacing:1px;margin-top:18px;opacity:0;animation:lineIn .8s forwards}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ============ 毕业小测(谢谢参与页点红包后) ============ */
+#endScene{background:#0b0a09}
+.hit-l1{font-size:20px;color:#8d8676;letter-spacing:4px;opacity:0;animation:lineIn 1s .2s ease forwards}
+.hit-l2{font-size:34px;font-weight:700;color:#c0392b;letter-spacing:4px;margin:14px 0 30px;opacity:0;animation:lineIn 1s 1.1s ease forwards}
+.hit-sub{font-size:13.5px;color:#9a9384;line-height:2.2;letter-spacing:1px;margin-bottom:36px;text-align:center;opacity:0;animation:lineIn 1s 2.2s ease forwards}
+#endScene .btn{opacity:0;animation:lineIn 1s 3.2s ease forwards}
+
+/* ============ 结算页 ============ */
+#resultScene{background:#101511;color:#dfe6dd;align-items:center}
+.rs-badge{font-size:12px;letter-spacing:4px;color:#7d8a7d;border:1px solid #2c3a2e;padding:4px 12px;border-radius:20px;margin-bottom:22px}
+.rs-rank{font-size:34px;font-weight:700;letter-spacing:6px;color:#e8d9a0}
+.rs-score{font-size:13px;color:#8f9a8f;letter-spacing:1px;margin:8px 0 26px;text-align:center;line-height:1.9}
+.rs-score span{display:block;color:#c9a86a}
+.rs-block{width:100%;max-width:400px;background:#18201a;border-radius:12px;padding:18px 20px;margin-bottom:14px;text-align:left}
+.rs-block h3{font-size:14px;letter-spacing:3px;color:#c9a86a;margin-bottom:10px}
+.rs-block p{font-size:13px;color:#aab5a8;line-height:2}
+.rs-block .hot{color:#e07b5f;font-weight:600}
+.rs-tip{font-size:12.5px;color:#7f8a80;line-height:2;margin-bottom:26px;text-align:center}
+
+/* toast 提示 */
+#toast{position:fixed;bottom:44px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,.78);color:#fff;font-size:13px;padding:10px 22px;border-radius:22px;opacity:0;transition:.3s;z-index:999;pointer-events:none;letter-spacing:1px}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="stage">
+  <button id="mute">声音:开</button>
+  <div id="prog"></div>
+
+  <!-- 封面:伪装问卷 -->
+  <div id="introScene" class="scene on">
+    <div class="cover-badge">校 园 抽 样</div>
+    <div class="cover-title">大学生活习惯<br>小 调 查</div>
+    <div class="cover-sub">本问卷共 11 题,约需 2 分钟<br>数据仅用于校园生活研究,匿名处理</div>
+    <button class="btn btn-main" id="startBtn">我已知晓,开始作答</button>
+    <div class="cover-note">主办方:学生生活研究会<br>完成问卷可参与 10 元红包抽奖</div>
+  </div>
+
+  <!-- 答题 -->
+  <div id="quizScene" class="scene">
+    <div class="q-card">
+      <div class="q-tag" id="qTag"></div>
+      <div class="q-text" id="qText"></div>
+      <div id="qBody"></div>
+    </div>
+  </div>
+
+  <!-- 骗子笔记 -->
+  <div id="noteScene" class="scene"></div>
+
+  <!-- 反转 -->
+  <div id="revealScene" class="scene">
+    <div class="rv-kicker">— 调 查 结 束 —</div>
+    <div class="rv-title">现在,把你刚才亲手交出的<br>东西,再看一遍</div>
+    <div class="rv-list" id="rvList"></div>
+    <div class="rv-foot" id="rvFoot">这不是问卷。这是一场真实骗局的标准开场。<br>天上不会掉红包 —— 掉下来的,都是鱼饵。</div>
+    <button class="btn rv-next" id="rvNext">→ 进入反诈第一课</button>
+  </div>
+
+  <!-- 谢谢参与(问卷星风)+ 红包弹窗 -->
+  <div id="thanksScene" class="scene">
+    <div class="th-check">✓</div>
+    <div class="th-title">感谢您的参与!</div>
+    <div class="th-sub">您的答卷已提交,将用于校园生活研究</div>
+    <div class="th-hb">
+      <div class="t1">恭喜获得</div>
+      <div class="amt">¥10</div>
+      <div class="lbl">现金红包 · 即刻到账</div>
+      <button class="btn th-btn" id="thBtn">拆 红 包</button>
+    </div>
+    <div class="th-tip">—— 红包已发放至钱包,24 小时内有效 ——</div>
+  </div>
+
+  <!-- 毕业小测:点红包后 -->
+  <div id="endScene" class="scene">
+    <div class="hit-l1">哈哈,</div>
+    <div class="hit-l2">你又点了。</div>
+    <div class="hit-sub">别紧张,这只是毕业小测 ——<br>可骗子挑的时机,永远是你最放松的时候:<br>刚下课的下一秒,你就差点又领了一次"红包"。</div>
+    <button class="btn btn-share" id="endShareBtn">发给室友,测测 ta</button>
+    <button class="btn btn-re" id="endAgainBtn">再测一次</button>
+  </div>
+
+  <!-- 结课报告 -->
+  <div id="resultScene" class="scene">
+    <div class="rs-badge">反诈第一课 · 结课报告</div>
+    <div class="rs-rank" id="rsRank"></div>
+    <div class="rs-score" id="rsScore"></div>
+    <div class="rs-block"><h3>今天演示的 3 类真实骗局</h3><p>① <span class="hot">冒充快递 / 平台客服</span>:「包裹破损理赔」「会员误开通」,高校受骗榜第一名<br>② <span class="hot">冒充熟人</span>:「我是你班主任,换号了」→ 下一步就是借钱、垫付<br>③ <span class="hot">索要验证码</span>:验证码就是钱,念出去 = 账户失守</p></div>
+    <div class="rs-block"><h3>防骗三不原则</h3><p>不点陌生链接 · 不给任何人验证码 · 不向陌生账户转账<br>拿不准?先挂断,打 <span class="hot">96110</span> 反诈专线核实</p></div>
+    <div class="rs-tip">打开「国家反诈中心」App,可疑来电自动预警<br>把这份问卷发给室友 —— 别让 ta 成为下一个</div>
+    <button class="btn btn-main" id="toThanksBtn">提交问卷,领取奖励</button>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+/* ==================== 数据:题目 / 笔记 / 流程 ==================== */
+const info = { name: '', birth: '' };
+const answers = [];
+
+/* 题目:good 数组 = 警觉得分项;leak = 反转页要展示的"你交出的信息" */
+const QS = [
+  { tag: '基本信息', q: '你现在是几年级?', opts: ['大一', '大二', '大三', '大四及以上'] },
+  { tag: '消费习惯', q: '平时网购多吗?', opts: ['几乎天天收快递', '一周好几次', '偶尔买一点', '基本不网购'] },
+  { tag: '快递习惯', q: '取件不方便时,快递一般放哪?', opts: ['学校快递驿站', '宿舍楼下', '代收点 / 小超市', '让室友帮忙代拿'],
+    leak: { b: '快递去向', s: '"您的包裹存放在××驿站"才能报得准' } },
+  { tag: '情景题', q: '收到短信:「您的快递在运输中破损,点击链接办理理赔」,你会?', opts: ['点链接,按提示填', '回短信问问详情', '打官方电话核实', '不理会,删掉'],
+    good: [2, 3], leak: { b: '理赔短信', s: '点了,故事就从此处开始' } },
+  { tag: '支付习惯', q: '平时最常用哪种方式付款?', opts: ['支付宝', '微信支付', '银行卡 / 云闪付', '现金'],
+    leak: { b: '常用支付', s: '"官方客服"会自称哪家,你就会信哪家' } },
+  { tag: '情景题', q: '「客服」来电:您的学生账户异常,需报身份证号核验。你会?', opts: ['报给对方核验', '犹豫一下,再问问', '直接挂断'],
+    good: [2], leak: { b: '身份证号', s: '犹豫的人,换个由头还是会给' } },
+  { tag: '抽奖登记', q: '填写以下信息,完成 10 元红包抽奖登记', input: [{ k: 'name', label: '姓名' }, { k: 'birth', label: '生日(例:5 月 12 日)' }], btn: '提交登记',
+    leakFn: function () { return { b: '姓名 · 生日', s: '「' + (info.name || '空') + '」「' + (info.birth || '空') + '」—— 冒充你的材料' } } },
+  { tag: '情景题', q: '「班主任」用新号码发来短信:「存一下我的新号」,你会?', opts: ['马上保存', '回一句"好的老师"', '打电话向老师本人核实', '不理会'],
+    good: [2, 3], leak: { b: '对"老师"的态度', s: '下一步就是"帮我垫付一笔钱"' } },
+  { tag: '家庭情况', q: '家里平时主要是谁管钱?', opts: ['我爸', '我妈', '我自己管', '各管各的'] },
+  { tag: '信息登记', q: '申请奖学金需核对家长联系方式,方便留下爸妈的电话吗?', opts: ['留下了', '凭什么给你?', '填了个空号'],
+    good: [1, 2], leak: { b: '父母电话', s: '用你的名字,向你爸妈要钱' } },
+  { tag: '最后一步', q: '把刚收到的 6 位短信验证码发我,帮你完成登记', opts: ['好,这就发给你', '验证码谁都不能给', '你到底是谁?'],
+    good: [1, 2], leak: { b: '短信验证码', s: '交出它,等于交出账户' } }
+];
+
+/* 骗子笔记:lines 里以 ! 开头的行显示为红色;第 3 篇自动引用用户填的姓名生日 */
+const NOTES = [
+  { date: '04.24 · 晴', lines: function () {
+      const grade = answers[0] || '大一';
+      const shop = answers[1] || '几乎天天收快递';
+      const shopShort = { '几乎天天收快递': '天天收快递', '一周好几次': '一周好几个包裹', '偶尔买一点': '偶尔网购', '基本不网购': '基本不网购' }[shop] || shop;
+      const tail = {
+        '几乎天天收快递': '习惯了收快递的人,不会怀疑"理赔"两个字。',
+        '一周好几次': '包裹多的人,不会一个个去核对。"理赔",最好使。',
+        '偶尔买一点': '偶尔买的人,一听到"包裹异常"反而更慌。慌了,就好办。',
+        '基本不网购': '不网购?没关系。"助学贷款""校园补贴",总有一款开场。'
+      }[shop] || '习惯了收快递的人,不会怀疑"理赔"两个字。';
+      return ['今天第 37 个。', grade + ',' + shopShort + '。这种最好办 ——', tail];
+    } },
+  { date: '04.25 · 阴', lines: function () {
+      const pay = answers[4] || '支付宝';
+      const idLine = {
+        '报给对方核验': '身份证那题,ta 想都没想就报了。',
+        '犹豫一下,再问问': '身份证那题,ta 犹豫了。',
+        '直接挂断': '身份证那题,ta 直接挂了我电话。'
+      }[answers[5]] || '身份证那题,ta 犹豫了。';
+      return ['ta 说常用' + pay + '。行,那"官方客服"就用这个开场。', idLine, '没关系。犹豫也好,挂断也好 —— 换个号码、换个由头,再试一次就好。'];
+    } },
+  { date: '04.26 · 无天光', lines: function () {
+      return ['!「' + (info.name || '没填名字') + '」,生日「' + (info.birth || '空着') + '」', '都记 xia 了。',
+        '等放假,ta 一离开学校 ——', '!就用这些,给 ta 家里打个电话:', '!"阿姨,我是孩子的辅导员,孩子出事了……"'];
+    } },
+  { date: '04.27 · 雨 · 开工前夜', lines: ['就差一个验证码了。', '给了,"账户异常"就能变成"账户清空"。', '明晚开工。', '!—— 都记 xia 了,跑不掉的。'] }
+];
+
+/* 流程:q=题目 n=笔记 rv=反转 */
+const TIMELINE = [
+  { t: 'q', i: 0 }, { t: 'q', i: 1 }, { t: 'n', i: 0 },
+  { t: 'q', i: 2 }, { t: 'q', i: 3 }, { t: 'q', i: 4 }, { t: 'n', i: 1 },
+  { t: 'q', i: 5 }, { t: 'q', i: 6 }, { t: 'n', i: 2 },
+  { t: 'q', i: 7 }, { t: 'q', i: 8 }, { t: 'q', i: 9 }, { t: 'n', i: 3 },
+  { t: 'q', i: 10 }, { t: 'rv' }
+];
+
+/* ==================== 核心逻辑 ==================== */
+const $ = function (s) { return document.querySelector(s); };
+let ti = -1, qNo = 0, score = 0, leaks = [], muted = false;
+const scoreTotal = QS.filter(function (q) { return q.good; }).length;
+const prog = $('#prog'), qTag = $('#qTag'), qText = $('#qText'), qBody = $('#qBody');
+/* 背景随进度逐渐变暗 */
+const BGS = ['#f6f2e8', '#f3eee0', '#eee8d7', '#e9e2ce', '#e4dcc6', '#ded5bc', '#d5cbb1', '#ccc1a4', '#c2b697', '#b8ab8b', '#ada082'];
+
+function show(id) {
+  const sc = document.querySelectorAll('.scene');
+  for (var k = 0; k < sc.length; k++) sc[k].classList.toggle('on', sc[k].id === id);
+}
+function bodyBg(i) { document.body.style.background = BGS[i] || BGS[BGS.length - 1]; }
+let lastNext = 0;
+function next() {
+  const now = Date.now();
+  if (now - lastNext < 350) return;
+  lastNext = now;
+  ti++;
+  const st = TIMELINE[ti];
+  if (!st) return;
+  if (st.t === 'q') renderQ(st.i);
+  else if (st.t === 'n') renderNote(st.i);
+  else renderReveal();
+}
+function toast(m) {
+  const t = $('#toast'); t.textContent = m; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('on'); }, 2200);
+}
+
+/* ---- 答题 ---- */
+function renderQ(qi) {
+  const q = QS[qi]; qNo++;
+  show('quizScene'); prog.classList.add('on');
+  prog.textContent = '第 ' + qNo + ' 题 / 共 ' + QS.length + ' 题';
+  bodyBg(qi); qTag.textContent = q.tag; qText.innerHTML = q.q; qBody.innerHTML = ''; qBody.removeAttribute('data-done');
+  if (q.input) {
+    q.input.forEach(function (f) {
+      const w = document.createElement('div'); w.className = 'field';
+      const lb = document.createElement('label'); lb.textContent = f.label;
+      const inp = document.createElement('input'); inp.type = 'text'; inp.id = 'in_' + f.k;
+      w.appendChild(lb); w.appendChild(inp); qBody.appendChild(w);
+    });
+    const b = document.createElement('button'); b.className = 'btn btn-main'; b.textContent = q.btn;
+    b.onclick = function () {
+      if (qBody.dataset.done) return; qBody.dataset.done = '1';
+      q.input.forEach(function (f) { info[f.k] = $('#in_' + f.k).value.trim(); });
+      if (q.leakFn) leaks.push(q.leakFn());
+      setTimeout(next, 500);
+    };
+    qBody.appendChild(b);
+  } else {
+    q.opts.forEach(function (o, i) {
+      const d = document.createElement('div'); d.className = 'opt';
+      d.innerHTML = '<span class="idx">' + String.fromCharCode(65 + i) + '</span>' + o;
+      d.onclick = function () {
+        if (qBody.dataset.done) return; qBody.dataset.done = '1';
+        answers[qi] = o;
+        d.classList.add('picked');
+        if (q.good && q.good.indexOf(i) > -1) score++;
+        if (q.leak) leaks.push(q.leak);
+        setTimeout(next, 550);
+      };
+      qBody.appendChild(d);
+    });
+  }
+}
+
+/* ---- 骗子笔记 ---- */
+function renderNote(ni) {
+  const n = NOTES[ni]; show('noteScene');
+  const L = typeof n.lines === 'function' ? n.lines() : n.lines;
+  const sc = $('#noteScene'); sc.innerHTML = '';
+  const paper = document.createElement('div'); paper.className = 'note-paper';
+  const date = document.createElement('div'); date.className = 'note-date'; date.textContent = n.date;
+  paper.appendChild(date);
+  L.forEach(function (l, i) {
+    const d = document.createElement('div');
+    d.className = 'note-line' + (l.charAt(0) === '!' ? ' red' : '');
+    d.textContent = l.charAt(0) === '!' ? l.slice(1) : l;
+    d.style.animationDelay = (0.3 + i * 0.9) + 's';
+    paper.appendChild(d);
+  });
+  const nx = document.createElement('div'); nx.className = 'note-next'; nx.textContent = '→ 继续作答';
+  nx.style.animationDelay = (0.6 + L.length * 0.9) + 's'; nx.onclick = next;
+  paper.appendChild(nx);
+  sc.appendChild(paper);
+  if (ni >= 2) {
+    document.body.classList.add('shake');
+    setTimeout(function () { document.body.classList.remove('shake'); }, 600);
+    heartbeat();
+  }
+}
+
+/* 静态元素的动画在页面加载时就播完了,进场时需要重置重放 */
+function replay(el, delay) {
+  el.style.animation = 'none'; void el.offsetWidth;
+  el.style.animation = ''; el.style.animationDelay = delay + 's';
+}
+
+/* ---- 反转页 ---- */
+function renderReveal() {
+  show('revealScene'); prog.textContent = '调 查 结 束'; heartbeat();
+  $('#revealScene').scrollTop = 0;
+  replay($('.rv-kicker'), 0.2);
+  replay($('.rv-title'), 0.5);
+  const list = $('#rvList'); list.innerHTML = '';
+  leaks.forEach(function (l, i) {
+    const d = document.createElement('div'); d.className = 'rv-item';
+    d.style.animationDelay = (0.8 + i * 0.55) + 's';
+    d.innerHTML = '<b>' + l.b + '</b><span>' + l.s + '</span>';
+    list.appendChild(d);
+  });
+  replay($('#rvFoot'), 1.1 + leaks.length * 0.55);
+  replay($('#rvNext'), 2 + leaks.length * 0.55);
+  $('#rvNext').onclick = renderResult;
+}
+
+/* ---- 结算 ---- */
+function renderResult() {
+  show('resultScene');
+  const ranks = [[5, '反诈王者'], [4, '反诈黄金'], [3, '反诈白银'], [1, '反诈青铜'], [0, '反诈萌新']];
+  let r = null;
+  for (var k = 0; k < ranks.length; k++) { if (score >= ranks[k][0]) { r = ranks[k]; break; } }
+  if (!r) r = [0, '反诈萌新'];
+  $('#rsRank').textContent = r[1];
+  $('#rsScore').innerHTML = '警觉值 ' + score + ' / ' + scoreTotal
+    + '<span>别急着走 —— 下一页还有个"小奖励"。<br>记住刚学的:天上不会掉红包。</span>';
+}
+
+/* ---- 谢谢参与(问卷星风) ---- */
+function showThanks() {
+  show('thanksScene'); prog.classList.remove('on'); $('#mute').classList.remove('on');
+  replay($('.th-hb'), 1.1); replay($('.th-btn'), 1.8); replay($('.th-tip'), 2.3);
+}
+
+/* ---- 毕业小测:点红包后 ---- */
+function showEnd() {
+  show('endScene'); heartbeat();
+  replay($('.hit-l1'), 0.2); replay($('.hit-l2'), 1.1); replay($('.hit-sub'), 2.2);
+  replay($('#endShareBtn'), 3.2); replay($('#endAgainBtn'), 3.4);
+}
+$('#toThanksBtn').onclick = showThanks;
+$('#thBtn').onclick = showEnd;
+$('#endAgainBtn').onclick = function () { location.reload(); };
+$('#endShareBtn').onclick = function () {
+  const txt = '我刚做了份"大学生活小调查",2分钟差点把家底交代了……你也来试试? ' + location.href;
+  const done = function () { toast('链接已复制,发给室友吧'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(function () { fallbackCopy(txt, done); });
+  } else fallbackCopy(txt, done);
+};
+function fallbackCopy(t, cb) {
+  const ta = document.createElement('textarea'); ta.value = t;
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch (e) { toast('复制失败,请手动分享'); }
+  ta.remove();
+}
+
+/* ---- WebAudio 心跳音效(无外部文件,可关) ---- */
+let AC = null;
+function ac() {
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { } }
+  return AC;
+}
+function thump(t0, vol) {
+  const c = ac(); if (!c || muted) return;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(58, t0);
+  o.frequency.exponentialRampToValueAtTime(40, t0 + 0.12);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
+  o.connect(g); g.connect(c.destination);
+  o.start(t0); o.stop(t0 + 0.25);
+}
+function heartbeat() {
+  const c = ac(); if (!c || muted) return;
+  const t = c.currentTime + 0.05;
+  for (let i = 0; i < 3; i++) { thump(t + i * 0.55, 0.5); thump(t + i * 0.55 + 0.16, 0.3); }
+}
+$('#mute').onclick = function () { muted = !muted; this.textContent = muted ? '声音:关' : '声音:开'; };
+
+/* ---- 启动 ---- */
+$('#startBtn').onclick = function () {
+  const c = ac(); if (c && c.state === 'suspended') c.resume();
+  $('#mute').classList.add('on');
+  next();
+};
+</script>
+</body>
+</html>
