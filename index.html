@@ -96,22 +96,32 @@ body.shake #stage{animation:shake .5s ease}
 .hit-sub{font-size:13.5px;color:#9a9384;line-height:2.2;letter-spacing:1px;margin-bottom:36px;text-align:center;opacity:0;animation:lineIn 1s 2.2s ease forwards}
 #endScene .btn{opacity:0;animation:lineIn 1s 3.2s ease forwards}
 
-/* ============ 仿冒统一身份认证登录页(拆红包后) ============ */
-#loginScene{background:#f2f3f7}
-.lg-tip{font-size:12.5px;color:#2f5e3f;letter-spacing:1px;margin-bottom:22px}
-.lg-card{width:100%;max-width:340px;background:#fff;border-radius:12px;padding:30px 30px 24px;box-shadow:0 12px 40px rgba(40,20,60,.14);text-align:center;opacity:0;animation:lineIn .7s ease forwards}
-.lg-sys{font-size:20px;font-weight:700;color:#660874;letter-spacing:2px;margin-bottom:8px}
-.lg-goto{font-size:12px;color:#9a94a4;letter-spacing:1px;margin-bottom:20px}
-.lg-tab{display:inline-block;font-size:13px;color:#660874;border-bottom:2px solid #660874;padding:0 4px 6px;margin-bottom:22px;letter-spacing:1px}
-.lg-field{width:100%;margin-bottom:16px;text-align:left}
-.lg-field label{display:block;font-size:12px;color:#8a8494;margin-bottom:6px;letter-spacing:1px}
-.lg-field input{width:100%;border:1px solid #ddd6e2;border-radius:6px;background:#fafafd;font-size:15px;padding:10px 12px;color:#2b2a30;outline:none;font-family:inherit}
-.lg-field input:focus{border-color:#660874}
-.lg-forget{font-size:12px;color:#8a8494;text-align:right;margin:-4px 0 16px;cursor:pointer}
-.lg-btn{display:block;width:100%;padding:11px 0;background:#660874;color:#fff;border:none;border-radius:6px;font-size:16px;letter-spacing:6px;cursor:pointer;font-family:inherit;transition:transform .15s}
-.lg-btn:active{transform:scale(.97)}
-.lg-trust{font-size:10.5px;color:#b3aec0;line-height:1.8;margin-top:16px;text-align:left}
-.lg-foot{font-size:11px;color:#b3aec0;letter-spacing:1px;margin-top:20px}
+/* ============ 仿冒统一身份认证登录页(拆红包后,按原版 signin.css 复刻) ============ */
+#loginScene{background:linear-gradient(175deg,#cf8f92 0%,#b76e7e 55%,#a3647a 100%);font-family:'Microsoft YaHei','PingFang SC','Helvetica Neue',Arial,sans-serif;justify-content:flex-start;padding-top:2vh}
+.lg-tip{font-size:12px;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:5px 14px;margin-bottom:12px;letter-spacing:1px}
+.lg-navbar{width:100%;max-width:430px;background:#fff;border-radius:10px 10px 0 0;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;box-sizing:border-box}
+.lg-brand{font-size:15px;font-weight:700;color:#3d3d4e;letter-spacing:.5px}
+.lg-lang{font-size:12px;color:#8a8a99}
+.lg-card{width:100%;max-width:430px;background:#F3DCD4;border-radius:0 0 12px 12px;padding:26px 22px 34px;box-shadow:0 8px 24px rgba(55,73,87,.28);box-sizing:border-box;opacity:0;animation:lineIn .7s ease forwards}
+.lg-h4{font-size:19px;font-weight:500;color:#2E2E3F;text-align:center;border-bottom:1px solid #dee2e6;padding-bottom:12px}
+.lg-dttab{margin-top:26px;border-bottom:1px solid #dee2e6;color:#2E2E3F;padding-bottom:8px;display:flex;position:relative}
+.lg-tab{font-size:17px;font-weight:500;flex:1;text-align:left;cursor:pointer;position:relative}
+.lg-tab.on:after{content:'';position:absolute;left:20%;bottom:-9px;width:60%;height:3px;background:#2e6da4}
+.lg-form{max-width:400px;margin:0 auto;padding-top:6px}
+.lg-group{margin-top:20px;text-align:left}
+.lg-group label{display:block;font-size:16px;font-weight:400;color:#2e2e3f;margin-bottom:4px}
+.lg-input{width:100%;box-sizing:border-box;padding:10px;font-size:16px;line-height:1.42857143;color:#555;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:inset 0 1px 1px rgba(0,0,0,.075);outline:none;font-family:inherit;transition:border-color .15s,box-shadow .15s}
+.lg-input:focus{border-color:#66afe9;box-shadow:inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)}
+.lg-input::placeholder{color:#999}
+.lg-forget{font-size:13px;color:#737373;text-align:right;margin-top:8px;cursor:pointer}
+.lg-trust{display:flex;align-items:flex-start;color:#2e2e3f;text-align:left;margin-top:18px}
+.lg-trust input{margin-top:4px}
+.lg-trust span{margin-left:8px;line-height:1.6;font-size:13px}
+.lg-trust em{font-style:normal;color:#8b0000}
+.lg-btn{display:block;width:100%;margin-top:32px;padding:10px 16px;background-color:#337ab7;border:1px solid #2e6da4;color:#fff;font-size:16px;border-radius:8px;cursor:pointer;outline:none;font-family:inherit;transition:background-color .15s}
+.lg-btn:hover{background-color:#286090}
+.lg-btn:active{transform:scale(.99)}
+.lg-foot{display:flex;gap:26px;justify-content:center;font-size:13px;color:rgba(255,255,255,.92);margin-top:18px}
 
 /* ============ 结算页 ============ */
 #resultScene{background:#101511;color:#dfe6dd;align-items:center}
@@ -179,20 +189,22 @@ body.shake #stage{animation:shake .5s ease}
     <div class="th-tip">—— 红包将于 3 个工作日内发放至登记账户 ——</div>
   </div>
 
-  <!-- 仿冒统一身份认证登录页(拆红包后) -->
+  <!-- 仿冒统一身份认证登录页(拆红包后,按原版 signin.css 复刻) -->
   <div id="loginScene" class="scene">
     <div class="lg-tip">✓ 红包已拆开 · 验证学生身份后到账</div>
+    <div class="lg-navbar"><span class="lg-brand">清华大学用户电子身份服务系统</span><span class="lg-lang">中文&nbsp;|&nbsp;English</span></div>
     <div class="lg-card">
-      <div class="lg-sys">清华大学用户电子身份服务系统</div>
-      <div class="lg-goto">您即将登录&nbsp;&nbsp;清华大学信息门户</div>
-      <div class="lg-tab">用户密码登录</div>
-      <div class="lg-field"><label>用户名</label><input id="lgUser" type="text" placeholder="学号 / 工号" autocomplete="off"></div>
-      <div class="lg-field"><label>密码</label><input id="lgPass" type="password" placeholder="请输入密码"></div>
-      <div class="lg-forget">忘记密码</div>
-      <button class="lg-btn" id="lgBtn">登&nbsp;&nbsp;录</button>
-      <div class="lg-trust">本次登录使用信任浏览器访问校内其他系统时不必再输入账号密码(统一登录),为了您的账号安全,使用完请关闭本浏览器。</div>
+      <div class="lg-h4">您即将登录&nbsp;&nbsp;清华大学信息门户</div>
+      <div class="lg-dttab"><span class="lg-tab on">用户密码登录</span></div>
+      <div class="lg-form">
+        <div class="lg-group"><label>用户名</label><input id="lgUser" class="lg-input" type="text" placeholder="学号、工作证号或账号" autocomplete="off"></div>
+        <div class="lg-group"><label>密码</label><input id="lgPass" class="lg-input" type="password" placeholder="密码"></div>
+        <div class="lg-forget">忘记密码</div>
+        <div class="lg-trust"><input type="checkbox" checked><span>本次登录使用信任浏览器访问校内其他系统时不必再输入账号密码(统一登录),<em>为了您的账号安全,使用完请关闭本浏览器。</em></span></div>
+        <button class="lg-btn" id="lgBtn">登&nbsp;录</button>
+      </div>
     </div>
-    <div class="lg-foot">010-62784859 &nbsp;·&nbsp; its@tsinghua.edu.cn</div>
+    <div class="lg-foot"><span>☎ 010-62784859</span><span>✉ its@tsinghua.edu.cn</span></div>
   </div>
 
   <!-- 毕业小测:点红包后 -->
