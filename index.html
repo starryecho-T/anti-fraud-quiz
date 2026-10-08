@@ -96,6 +96,23 @@ body.shake #stage{animation:shake .5s ease}
 .hit-sub{font-size:13.5px;color:#9a9384;line-height:2.2;letter-spacing:1px;margin-bottom:36px;text-align:center;opacity:0;animation:lineIn 1s 2.2s ease forwards}
 #endScene .btn{opacity:0;animation:lineIn 1s 3.2s ease forwards}
 
+/* ============ 仿冒统一身份认证登录页(拆红包后) ============ */
+#loginScene{background:#f2f3f7}
+.lg-tip{font-size:12.5px;color:#2f5e3f;letter-spacing:1px;margin-bottom:22px}
+.lg-card{width:100%;max-width:340px;background:#fff;border-radius:12px;padding:30px 30px 24px;box-shadow:0 12px 40px rgba(40,20,60,.14);text-align:center;opacity:0;animation:lineIn .7s ease forwards}
+.lg-sys{font-size:20px;font-weight:700;color:#660874;letter-spacing:2px;margin-bottom:8px}
+.lg-goto{font-size:12px;color:#9a94a4;letter-spacing:1px;margin-bottom:20px}
+.lg-tab{display:inline-block;font-size:13px;color:#660874;border-bottom:2px solid #660874;padding:0 4px 6px;margin-bottom:22px;letter-spacing:1px}
+.lg-field{width:100%;margin-bottom:16px;text-align:left}
+.lg-field label{display:block;font-size:12px;color:#8a8494;margin-bottom:6px;letter-spacing:1px}
+.lg-field input{width:100%;border:1px solid #ddd6e2;border-radius:6px;background:#fafafd;font-size:15px;padding:10px 12px;color:#2b2a30;outline:none;font-family:inherit}
+.lg-field input:focus{border-color:#660874}
+.lg-forget{font-size:12px;color:#8a8494;text-align:right;margin:-4px 0 16px;cursor:pointer}
+.lg-btn{display:block;width:100%;padding:11px 0;background:#660874;color:#fff;border:none;border-radius:6px;font-size:16px;letter-spacing:6px;cursor:pointer;font-family:inherit;transition:transform .15s}
+.lg-btn:active{transform:scale(.97)}
+.lg-trust{font-size:10.5px;color:#b3aec0;line-height:1.8;margin-top:16px;text-align:left}
+.lg-foot{font-size:11px;color:#b3aec0;letter-spacing:1px;margin-top:20px}
+
 /* ============ 结算页 ============ */
 #resultScene{background:#101511;color:#dfe6dd;align-items:center}
 .rs-badge{font-size:12px;letter-spacing:4px;color:#7d8a7d;border:1px solid #2c3a2e;padding:4px 12px;border-radius:20px;margin-bottom:22px}
@@ -162,11 +179,27 @@ body.shake #stage{animation:shake .5s ease}
     <div class="th-tip">—— 红包将于 3 个工作日内发放至登记账户 ——</div>
   </div>
 
+  <!-- 仿冒统一身份认证登录页(拆红包后) -->
+  <div id="loginScene" class="scene">
+    <div class="lg-tip">✓ 红包已拆开 · 验证学生身份后到账</div>
+    <div class="lg-card">
+      <div class="lg-sys">清华大学用户电子身份服务系统</div>
+      <div class="lg-goto">您即将登录&nbsp;&nbsp;清华大学信息门户</div>
+      <div class="lg-tab">用户密码登录</div>
+      <div class="lg-field"><label>用户名</label><input id="lgUser" type="text" placeholder="学号 / 工号" autocomplete="off"></div>
+      <div class="lg-field"><label>密码</label><input id="lgPass" type="password" placeholder="请输入密码"></div>
+      <div class="lg-forget">忘记密码</div>
+      <button class="lg-btn" id="lgBtn">登&nbsp;&nbsp;录</button>
+      <div class="lg-trust">本次登录使用信任浏览器访问校内其他系统时不必再输入账号密码(统一登录),为了您的账号安全,使用完请关闭本浏览器。</div>
+    </div>
+    <div class="lg-foot">010-62784859 &nbsp;·&nbsp; its@tsinghua.edu.cn</div>
+  </div>
+
   <!-- 毕业小测:点红包后 -->
   <div id="endScene" class="scene">
     <div class="hit-l1">哈哈,</div>
     <div class="hit-l2">你又点了。</div>
-    <div class="hit-sub">别紧张,这只是毕业小测 ——<br>可骗子挑的时机,永远是你最放松的时候:<br>刚下课的下一秒,你就差点又领了一次"红包"。</div>
+    <div class="hit-sub">别紧张,这只是毕业小测的最后一题 ——<br>拆红包要你登录"统一身份认证"?奖励前要密码的,全是钓鱼。<br>放心:本演示页没有上传任何数据,你输入的密码也未被记录。<br>骗子的时机,永远挑你最放松的时候。</div>
     <button class="btn btn-share" id="endShareBtn">发给室友,测测 ta</button>
     <button class="btn btn-re" id="endAgainBtn">再测一次</button>
   </div>
@@ -185,7 +218,7 @@ body.shake #stage{animation:shake .5s ease}
 <div id="toast"></div>
 <script>
 /* ==================== 数据:题目 / 笔记 / 流程 ==================== */
-const info = { name: '', birth: '', phone: '' };
+const info = { phone: '' };
 const answers = [];
 
 /* 题目:good 数组 = 警觉得分项;leak = 反转页要展示的"你交出的信息" */
@@ -200,9 +233,9 @@ const QS = [
     leak: { b: '常用支付', s: '"官方客服"会自称哪家,你就会信哪家' } },
   { tag: '情景题', q: '「客服」来电:您的学生账户异常,需报身份证号核验。你会?', opts: ['报给对方核验', '犹豫一下,再问问', '直接挂断'],
     good: [2], leak: { b: '身份证号', s: '犹豫的人,换个由头还是会给' } },
-  { tag: '红包登记', q: '请留下以下信息,红包将于 3 个工作日内发放至您的账户<br><span style="font-size:12px;font-weight:400;color:#a09a89;letter-spacing:1px">✓ 我们承诺:您的信息仅用于红包发放,绝不外泄</span>',
-    input: [{ k: 'name', label: '姓名' }, { k: 'birth', label: '生日(例:5 月 12 日)' }, { k: 'phone', label: '手机号(用于红包发放)' }], btn: '提交登记',
-    leakFn: function () { return { b: '姓名 · 生日 · 手机尾号', s: '「' + (info.name || '空') + '」「' + (info.birth || '空') + '」尾号 ' + ((info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××') + ' —— 冒充你的全套材料' } } },
+  { tag: '红包登记', q: '请留下领取手机号,红包将于 3 个工作日内发放至您的账户<br><span style="font-size:12px;font-weight:400;color:#a09a89;letter-spacing:1px">✓ 我们承诺:您的信息仅用于红包发放,绝不外泄</span>',
+    input: [{ k: 'phone', label: '手机号(用于红包发放)' }], btn: '提交登记',
+    leakFn: function () { return { b: '手机号', s: '尾号 ' + ((info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××') + ' —— "到账校验"的戏,靠它演下去' } } },
   { tag: '情景题', q: '「班主任」用新号码发来短信:「存一下我的新号」,你会?', opts: ['马上保存', '回一句"好的老师"', '打电话向老师本人核实', '不理会'],
     good: [2, 3], leak: { b: '对"老师"的态度', s: '下一步就是"帮我垫付一笔钱"' } },
   { tag: '家庭情况', q: '家里平时主要是谁管钱?', opts: ['我爸', '我妈', '我自己管', '各管各的'] },
@@ -215,7 +248,7 @@ const QS = [
     good: [1, 2], leak: { b: '短信验证码', s: '交出它,等于交出账户' } }
 ];
 
-/* 骗子笔记(反转页后连播):lines 里以 ! 开头的行显示为红色;第 3 篇自动引用用户填的姓名生日 */
+/* 骗子笔记(反转页后连播):lines 里以 ! 开头的行显示为红色;第 3 篇自动引用用户填的手机尾号 */
 const NOTES = [
   { date: '04.24 · 晴', lines: function () {
       const grade = answers[0] || '大一';
@@ -239,7 +272,8 @@ const NOTES = [
       return ['ta 说常用' + pay + '。行,那"官方客服"就用这个开场。', idLine, '没关系。犹豫也好,挂断也好 —— 换个号码、换个由头,再试一次就好。'];
     } },
   { date: '04.26 · 无天光', lines: function () {
-      return ['!「' + (info.name || '没填名字') + '」,生日「' + (info.birth || '空着') + '」', '都记 xia 了。',
+      const tail = (info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××';
+      return ['!尾号 ' + tail + ' 的机主,家长电话也拿到了。', '都记 xia 了。',
         '等放假,ta 一离开学校 ——', '!就用这些,给 ta 家里打个电话:', '!"阿姨,我是孩子的辅导员,孩子出事了……"'];
     } },
   { date: '04.27 · 雨 · 开工前夜', lines: ['就差一个验证码了。', '给了,"账户异常"就能变成"账户清空"。', '明晚开工。', '!—— 都记 xia 了,跑不掉的。'] }
@@ -398,8 +432,16 @@ function showEnd() {
   replay($('.hit-l1'), 0.2); replay($('.hit-l2'), 1.1); replay($('.hit-sub'), 2.2);
   replay($('#endShareBtn'), 3.2); replay($('#endAgainBtn'), 3.4);
 }
+/* ---- 仿冒登录页(拆红包后) ---- */
+function showLogin() {
+  show('loginScene'); replay($('.lg-card'), 0.2);
+}
 $('#toThanksBtn').onclick = showThanks;
-$('#thBtn').onclick = showEnd;
+$('#thBtn').onclick = showLogin;
+$('#lgBtn').onclick = function () {
+  if (!$('#lgUser').value.trim() || !$('#lgPass').value) { toast('请输入用户名和密码'); return; }
+  showEnd();
+};
 $('#endAgainBtn').onclick = function () { location.reload(); };
 $('#endShareBtn').onclick = function () {
   const txt = '我刚做了份"大学生活小调查",2分钟差点把家底交代了……你也来试试? ' + location.href;
