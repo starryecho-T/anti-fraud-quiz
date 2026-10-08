@@ -245,14 +245,14 @@ const QS = [
     leak: { b: '常用支付', s: '"官方客服"会自称哪家,你就会信哪家' } },
   { tag: '信息安全', q: '若有"客服"以账户异常为由,要求您在电话中报出身份证号,您会配合吗?', opts: ['会,配合核验', '先聊几句再决定', '不会,直接挂断'],
     good: [2], leak: { b: '身份证号', s: '犹豫的人,换个由头还是会给' } },
-  { tag: '红包登记', q: '请留下领取手机号,红包将于 3 个工作日内发放至您的账户<br><span style="font-size:12px;font-weight:400;color:#a09a89;letter-spacing:1px">✓ 我们承诺:您的信息仅用于红包发放,绝不外泄</span>',
-    input: [{ k: 'phone', label: '手机号(用于红包发放)' }], btn: '提交登记',
-    leakFn: function () { return { b: '手机号', s: '尾号 ' + ((info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××') + ' —— "到账校验"的戏,靠它演下去' } } },
   { tag: '通讯习惯', q: '若收到自称"老师 / 辅导员"的陌生号码发来"换号了,存一下"的短信,您通常会?', opts: ['马上保存号码', '回复确认一下', '打原号码向本人核实', '不保存,不予理会'],
     good: [2, 3], leak: { b: '对"老师"的态度', s: '下一步就是"帮我垫付一笔钱"' } },
   { tag: '家庭情况', q: '家里平时主要是谁管钱?', opts: ['我爸', '我妈', '我自己管', '各管各的'] },
   { tag: '信息登记', q: '申请奖学金需核对家长联系方式,方便留下爸妈的电话吗?', opts: ['留下了', '凭什么给你?', '填了个空号'],
     good: [1, 2], leak: { b: '父母电话', s: '用你的名字,向你爸妈要钱' } },
+  { tag: '红包登记', q: '问卷到这里就答完啦!请留下领取手机号,红包将于 3 个工作日内发放至您的账户<br><span style="font-size:12px;font-weight:400;color:#a09a89;letter-spacing:1px">✓ 我们承诺:您的信息仅用于红包发放,绝不外泄</span>',
+    input: [{ k: 'phone', label: '手机号(用于红包发放)' }], btn: '提交登记',
+    leakFn: function () { return { b: '手机号', s: '尾号 ' + ((info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××') + ' —— "到账校验"的戏,靠它演下去' } } },
   { tag: '到账校验', q: function () {
       const tail = (info.phone && info.phone.length >= 4) ? info.phone.slice(-4) : '××××';
       return '红包发放前需进行手机校验:请提供您收到的短信验证码<br>(校验对象:尾号 <b>' + tail + '</b> 的登记手机)。您是否愿意提供?';
@@ -456,7 +456,7 @@ $('#lgBtn').onclick = function () {
 };
 $('#endAgainBtn').onclick = function () { location.reload(); };
 $('#endShareBtn').onclick = function () {
-  const txt = '我刚做了份"大学生活小调查",2分钟差点把家底交代了……你也来试试? ' + location.href;
+  const txt = '我刚做了份"大学生活小调查",2分钟差点把家底交代了……你也来试试? https://starryecho-t.github.io/anti-fraud-quiz/';
   const done = function () { toast('链接已复制,发给室友吧'); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(txt).then(done).catch(function () { fallbackCopy(txt, done); });
